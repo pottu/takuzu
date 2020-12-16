@@ -1,6 +1,11 @@
 module Main where
 
-import Lib
+import System.IO (getContents) 
+import Parser (parse)
+import Solver (solve)
 
-main :: IO ()
-main = someFunc
+main = do
+  print "Okay, input a takuzu instance."
+  instnc <- getContents
+  print $ solve $ parse instnc
+
