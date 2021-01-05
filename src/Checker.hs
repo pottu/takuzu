@@ -3,29 +3,28 @@ module Checker where
 import Board
 import Data.List (transpose, group, nub)
 
+-- Correct means board is fully and correctly marked.
+-- Incorrect means some inconsistency has been detected.
+-- Unknown means board is consitent but not yet filled.
 data Result = Correct | Incorrect | Unknown
 
--- TODO: I think a partial checker might come in handy.
--- Either a separate checker or extend this one.. Hm..
+-- Check if a board is correct.
 check :: Board -> Result
-check b = 
-  let b' = transpose b
-   in if allMarked b
-         then checkComplete b
-         else Unknown
+check b = if checkPartial b
+             then if allMarked b then Correct else Unknown
+             else Incorrect
 
--- Expects a fully marked board.
-checkComplete :: Board -> Result
-checkComplete b =
+-- Check if a board is consistent (so far).
+checkPartial :: Board -> Bool
+checkPartial b =
   let b' = transpose b
-   in if and [maxTwoConsecutive b
-             ,maxTwoConsecutive b'
-             ,sameNumberOfMarks b
-             ,sameNumberOfMarks b'
-             ,allUnique b
-             ,allUnique b'
-             ]
-          then Correct else Incorrect
+   in and [maxTwoConsecutive b
+          ,maxTwoConsecutive b'
+          ,maxAmountOfMarks b
+          ,maxAmountOfMarks b'
+          ,allUnique b
+          ,allUnique b'
+          ]
 
 -- Checks if board is fully marked.
 allMarked :: Board -> Bool
@@ -35,24 +34,24 @@ allMarked = all (all isMark)
 -- Run on transposed board to check columns.
 maxTwoConsecutive :: Board -> Bool
 maxTwoConsecutive b = 
-  all (\g -> length g <= 2) $ concatMap group b
+  all (\g -> (not $ isMark $ head g) || length g <= 2) $ concatMap group b
 
--- Checks if each row contains the an equal number of X's and O's.
--- Assumes board is fully marked.
+-- Checks if each row contains at most half X's and O's.
 -- Run on transposed board to check columns.
-sameNumberOfMarks :: Board -> Bool
-sameNumberOfMarks b =
-  let n = (length $ head b) `div` 2 -- Expected amount of X's/O's per row.
-   in all (n ==) $ map (count 0 X) b
+maxAmountOfMarks :: Board -> Bool
+maxAmountOfMarks b =
+  let n = (length $ head b) `div` 2
+   in (all (\(x,o) -> x <= n && o <= n) $ map countMarks b)
   where
-    count :: Eq a => Int -> a -> [a] -> Int
-    count n _ [] = n
-    count n e (l:ls) = 
-      if e == l 
-         then count (n+1) e ls
-         else count n e ls
+    countMarks :: [Mark] -> (Int, Int)
+    countMarks [] = (0, 0)
+    countMarks (X:ms) = let (x, o) = countMarks ms in (x+1, o)
+    countMarks (O:ms) = let (x, o) = countMarks ms in (x, o+1)
+    countMarks (_:ms) = countMarks ms 
 
--- Checks if all rows are unique.
+-- Checks if all filled rows are unique.
 -- Run on transposed board to check columns.
 allUnique :: Board -> Bool
-allUnique b = (length b) == (length $ nub b)
+allUnique b =
+  let b' = filter (all isMark) b
+   in (length b') == (length $ nub b')
