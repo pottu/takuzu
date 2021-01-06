@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 665b2fb7d48916f8a84218d48dc813d2fca78fbf6a4997927b357f4617a947be
+-- hash: 2c1582d77dc68c438010a99c5401f2dc8a69f234beefc991f052813c4e75c63b
 
 name:           takuzu
 version:        0.1.0.0
@@ -66,6 +66,7 @@ test-suite takuzu-test
       CheckerSpec
       Generators
       ParserSpec
+      SolverSpec
       Paths_takuzu
   hs-source-dirs:
       test

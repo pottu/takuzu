@@ -6,7 +6,7 @@ import Data.List (transpose, group, nub)
 -- Correct means board is fully and correctly marked.
 -- Incorrect means some inconsistency has been detected.
 -- Unknown means board is consitent but not yet filled.
-data Result = Correct | Incorrect | Unknown
+data Result = Correct | Incorrect | Unknown deriving (Show, Eq)
 
 -- Check if a board is correct.
 check :: Board -> Result

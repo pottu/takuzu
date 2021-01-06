@@ -1,6 +1,7 @@
 module Generators where
 
 import Test.QuickCheck
+import Test.QuickCheck.Gen
 import Board
 
 -- Generate arbitrary mark.
@@ -18,4 +19,14 @@ genBoard = do
   b <- vectorOf nrRows $ vectorOf nrCols arbitrary
   return b
 
+
+-- Generates a small arbitrary board (2x2 to 10x10).
+-- "Small" as in can be solved rather quickly.
+-- FIXME: Increase size when more techniques are added..
+genSmallBoard :: Gen Board
+genSmallBoard = do
+  nrRows <- elements [2,4..10]
+  nrCols <- elements [2,4..10]
+  b <- vectorOf nrRows $ vectorOf nrCols arbitrary
+  return b
 
