@@ -5,7 +5,7 @@ data Mark = X | O | None
 instance Show Mark where
   show X = "X"
   show O = "O"
-  show None = "·"
+  show None = "."
 
 isMark :: Mark -> Bool
 isMark None = False
