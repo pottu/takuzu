@@ -12,6 +12,6 @@ import Data.Maybe (isJust, fromJust)
 spec :: Spec
 spec = do
   describe "solve" $ do
-    it "solves arbitrary solvable boards correct" $
+    it "produces only witnesses that passes the checker" $
       forAll (fmap solve genSmallBoard `suchThat` isJust)
         (\b -> (check $ fromJust $ b) `shouldBe` Correct)
