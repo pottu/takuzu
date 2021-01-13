@@ -71,10 +71,10 @@ avoidTriples3 = map f
     f row =
       let (xs, os) = countMarks row
           n = (length row) `div` 2
-      in if xs == n - 1 && os == n - 2
+      in if xs == n - 1 && os == n - 2 && (not $ threeNoneInRow row) && twoConsecutiveNone row
          then placeInFirstSingleEmpty O row
          else
-           if os == n - 1 && xs == n - 2
+           if os == n - 1 && xs == n - 2 && (not $ threeNoneInRow row) && twoConsecutiveNone row
            then placeInFirstSingleEmpty X row
            else row
       where
@@ -87,17 +87,27 @@ avoidTriples3 = map f
         placeInFirstSingleEmpty :: Mark -> [Mark] -> [Mark]
         placeInFirstSingleEmpty _ [] = []
         placeInFirstSingleEmpty m [None] = [m]
-        placeInFirstSingleEmpty X (None:X:None:ms) = (None:X:None:(placeInFirstSingleEmpty X ms))
-        placeInFirstSingleEmpty O (None:O:None:ms) = (None:O:None:(placeInFirstSingleEmpty O ms))
-        placeInFirstSingleEmpty X (None:None:X:ms) = (None:None:X:(placeInFirstSingleEmpty X ms))
-        placeInFirstSingleEmpty O (None:None:O:ms) = (None:None:O:(placeInFirstSingleEmpty O ms))
-        placeInFirstSingleEmpty X (X:None:None:ms) = (X:None:None:(placeInFirstSingleEmpty X ms))
-        placeInFirstSingleEmpty O (O:None:None:ms) = (O:None:None:(placeInFirstSingleEmpty O ms))
-        placeInFirstSingleEmpty m (O:None:X:ms) = (O:(placeInFirstSingleEmpty m (None:X:ms)))
-        placeInFirstSingleEmpty m (X:None:O:ms) = (X:(placeInFirstSingleEmpty m (None:O:ms)))
+        placeInFirstSingleEmpty X (X:None:None:ms) = (X:None:None:placeInFirstSingleEmpty X ms)
+        placeInFirstSingleEmpty O (O:None:None:ms) = (O:None:None:placeInFirstSingleEmpty O ms)
+        placeInFirstSingleEmpty X (None:X:None:ms) = (None:X:None:placeInFirstSingleEmpty X ms)
+        placeInFirstSingleEmpty O (None:O:None:ms) = (None:O:None:placeInFirstSingleEmpty O ms)
+        placeInFirstSingleEmpty X (None:None:X:ms) = (None:None:X:placeInFirstSingleEmpty X ms)
+        placeInFirstSingleEmpty O (None:None:O:ms) = (None:None:O:placeInFirstSingleEmpty O ms)
+        placeInFirstSingleEmpty m (O:None:X:ms) = (O:placeInFirstSingleEmpty m (None:X:ms))
+        placeInFirstSingleEmpty m (X:None:O:ms) = (X:placeInFirstSingleEmpty m (None:O:ms))
         placeInFirstSingleEmpty m (n:None:ms) = (n:m:ms)
         placeInFirstSingleEmpty m (None:n:ms) = (m:n:ms)
         placeInFirstSingleEmpty m (n:ms) = (n:(placeInFirstSingleEmpty m ms))
+
+        threeNoneInRow :: [Mark] -> Bool
+        threeNoneInRow [] = False
+        threeNoneInRow (None:None:None:_) = True
+        threeNoneInRow (_:ms) = threeNoneInRow ms
+
+        twoConsecutiveNone :: [Mark] -> Bool
+        twoConsecutiveNone [] = False
+        twoConsecutiveNone (None:None:_) = True
+        twoConsecutiveNone (_:ms) = twoConsecutiveNone ms
 
 completeRow :: Board -> Board
 completeRow = map complete
