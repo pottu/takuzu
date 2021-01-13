@@ -39,7 +39,7 @@ applyTechniques b =
    in if b' == b then b else applyTechniques b'
   where
     -- TODO: Add techniques here.
-    ts = [avoidTriples1and2] 
+    ts = [avoidTriples1and2, avoidTriples3]
 
     applyTechniques' :: [Board -> Board] -> Board -> Board
     applyTechniques' [] b = b
@@ -64,3 +64,37 @@ avoidTriples1and2 = map patterns
     patterns (m:ms) = (m:patterns ms)
     patterns []     = []
 
+avoidTriples3 :: Board -> Board
+avoidTriples3 = map f
+  where
+    f :: [Mark] -> [Mark]
+    f row =
+      let (xs, os) = countMarks row
+          n = (length row) `div` 2
+      in if xs == n - 1 && os == n - 2
+         then placeInFirstSingleEmpty O row
+         else
+           if os == n - 1 && xs == n - 2
+           then placeInFirstSingleEmpty X row
+           else row
+      where
+        countMarks :: [Mark] -> (Int, Int)
+        countMarks [] = (0, 0)
+        countMarks (X:ms) = let (x, o) = countMarks ms in (x+1, o)
+        countMarks (O:ms) = let (x, o) = countMarks ms in (x, o+1)
+        countMarks (_:ms) = countMarks ms
+
+        placeInFirstSingleEmpty :: Mark -> [Mark] -> [Mark]
+        placeInFirstSingleEmpty _ [] = []
+        placeInFirstSingleEmpty m [None] = [m]
+        placeInFirstSingleEmpty X (None:X:None:ms) = (None:X:None:(placeInFirstSingleEmpty X ms))
+        placeInFirstSingleEmpty O (None:O:None:ms) = (None:O:None:(placeInFirstSingleEmpty O ms))
+        placeInFirstSingleEmpty X (None:None:X:ms) = (None:None:X:(placeInFirstSingleEmpty X ms))
+        placeInFirstSingleEmpty O (None:None:O:ms) = (None:None:O:(placeInFirstSingleEmpty O ms))
+        placeInFirstSingleEmpty X (X:None:None:ms) = (X:None:None:(placeInFirstSingleEmpty X ms))
+        placeInFirstSingleEmpty O (O:None:None:ms) = (O:None:None:(placeInFirstSingleEmpty O ms))
+        placeInFirstSingleEmpty m (O:None:X:ms) = (O:(placeInFirstSingleEmpty m (None:X:ms)))
+        placeInFirstSingleEmpty m (X:None:O:ms) = (X:(placeInFirstSingleEmpty m (None:O:ms)))
+        placeInFirstSingleEmpty m (n:None:ms) = (n:m:ms)
+        placeInFirstSingleEmpty m (None:n:ms) = (m:n:ms)
+        placeInFirstSingleEmpty m (n:ms) = (n:(placeInFirstSingleEmpty m ms))
