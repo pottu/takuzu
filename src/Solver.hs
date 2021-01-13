@@ -39,7 +39,7 @@ applyTechniques b =
    in if b' == b then b else applyTechniques b'
   where
     -- TODO: Add techniques here.
-    ts = [avoidTriples1and2, avoidTriples3]
+    ts = [avoidTriples1and2, avoidTriples3, completeRow]
 
     applyTechniques' :: [Board -> Board] -> Board -> Board
     applyTechniques' [] b = b
@@ -98,3 +98,28 @@ avoidTriples3 = map f
         placeInFirstSingleEmpty m (n:None:ms) = (n:m:ms)
         placeInFirstSingleEmpty m (None:n:ms) = (m:n:ms)
         placeInFirstSingleEmpty m (n:ms) = (n:(placeInFirstSingleEmpty m ms))
+
+completeRow :: Board -> Board
+completeRow = map complete
+  where
+    complete :: [Mark] -> [Mark]
+    complete row =
+      let (xs, os) = countMarks row
+          n = (length row) `div` 2
+      in if xs == n
+         then completeRow' O row
+         else
+           if os == n
+           then completeRow' X row
+           else row
+      where
+        countMarks :: [Mark] -> (Int, Int)
+        countMarks [] = (0, 0)
+        countMarks (X:ms) = let (x, o) = countMarks ms in (x+1, o)
+        countMarks (O:ms) = let (x, o) = countMarks ms in (x, o+1)
+        countMarks (_:ms) = countMarks ms
+
+        completeRow' :: Mark -> [Mark] -> [Mark]
+        completeRow' _ [] = []
+        completeRow' m (None:ms) = (m:ms)
+        completeRow' m (n:ms) = (n:(completeRow' m ms))
