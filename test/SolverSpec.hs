@@ -33,50 +33,6 @@ spec = do
         let b' = solve b
          in check (fromJust b') `shouldBe` Correct)
 
-  describe "avoidTriples3" $ do
-    it "places the last of a specific mark on a row such the other marks don't form a triple" $
-      avoidingTriples3 [[None, X, O, X, None, O, None, None],
-                      [None, None, None, O, None, X, O, X],
-                      [O, O, X, X, O, X, X, O],
-                      [X, None, None, None, X, O, O, X],
-                      [None, None, None, O, X, X, O, None],
-                      [None, X, None, None, O, X, X, O],
-                      [None, None, None, X, None, O, None, None],
-                      [None, None, None, None, None, O, None, None]]
-      `shouldBe`
-      [[None, X, O, X, None, O, None, None],
-        [None, None, None, O, None, X, O, X],
-        [O, O, X, X, O, X, X, O],
-        [X, None, None, None, X, O, O, X],
-        [None, None, None, O, X, X, O, None],
-        [O, X, None, None, O, X, X, O],
-        [None, None, None, X, None, O, None, None],
-        [None, None, None, None, None, O, None, None]]
-    it "does not remove any marks initially on the board" $
-      forAll genBoard (\b -> sameMarks b (avoidingTriples3 b))
-
-  describe "completeRow" $ do
-    it "completes a row if only a single mark is missing" $
-      completeRow [[None, None, O, None, None, None, O, None],
-                    [None, O, X, O, O, X, None, X],
-                    [None, None, None, X, None, O, X, O],
-                    [None, None, O, X, X, O, None, X],
-                    [None, X, None, O, None, X, None, None],
-                    [O, None, X, O, O, X, None, None],
-                    [X, None, None, X, X, None, X, None],
-                    [X, None, None, None, None, None, None, None]]
-      `shouldBe`
-      [[None, None, O, None, None, None, O, None],
-        [None, O, X, O, O, X, None, X],
-        [None, None, None, X, None, O, X, O],
-        [None, None, O, X, X, O, None, X],
-        [None, X, None, O, None, X, None, None],
-        [O, None, X, O, O, X, None, None],
-        [X, O, O, X, X, O, X, O],
-        [X, None, None, None, None, None, None, None]]
-    it "does not remove any marks initially on the board" $
-      forAll genBoard (\b -> sameMarks b (completeRow b))
-
   describe "avoidingTriples1and2" $ do
     it "mimics given example 1" $ do
       let example = [[None,None,None,X,X,None,None,None],
@@ -103,3 +59,70 @@ spec = do
       `shouldBe` [[O,X,None,O,None,None,X,None,None,O],[X,O,X,O,X,O,X,O,X,O]]
     it "does not remove any marks initially on the board" $
       forAll genBoard (\b -> sameMarks b (advancedTechnique1 b))
+
+  describe "avoidTriples3" $ do
+    it "places the last of a specific mark on a row such the other marks don't form a triple" $
+      avoidingTriples3 [[None, X, O, X, None, O, None, None],
+                      [None, None, None, O, None, X, O, X],
+                      [O, O, X, X, O, X, X, O],
+                      [X, None, None, None, X, O, O, X],
+                      [None, None, None, O, X, X, O, None],
+                      [None, X, None, None, O, X, X, O],
+                      [None, None, None, X, None, O, None, None],
+                      [None, None, None, None, None, O, None, None]]
+      `shouldBe`
+      [[None, X, O, X, None, O, None, None],
+        [None, None, None, O, None, X, O, X],
+        [O, O, X, X, O, X, X, O],
+        [X, None, None, None, X, O, O, X],
+        [None, None, None, O, X, X, O, None],
+        [O, X, None, None, O, X, X, O],
+        [None, None, None, X, None, O, None, None],
+        [None, None, None, None, None, O, None, None]]
+
+    it "does not remove any marks initially on the board" $
+      forAll genBoard (\b -> sameMarks b (avoidingTriples3 b))
+
+  describe "completeRow" $ do
+    it "completes a row if only a single mark is missing" $
+      completeRow [[None, None, O, None, None, None, O, None],
+                    [None, O, X, O, O, X, None, X],
+                    [None, None, None, X, None, O, X, O],
+                    [None, None, O, X, X, O, None, X],
+                    [None, X, None, O, None, X, None, None],
+                    [O, None, X, O, O, X, None, None],
+                    [X, None, None, X, X, None, X, None],
+                    [X, None, None, None, None, None, None, None]]
+      `shouldBe`
+      [[None, None, O, None, None, None, O, None],
+        [None, O, X, O, O, X, None, X],
+        [None, None, None, X, None, O, X, O],
+        [None, None, O, X, X, O, None, X],
+        [None, X, None, O, None, X, None, None],
+        [O, None, X, O, O, X, None, None],
+        [X, O, O, X, X, O, X, O],
+        [X, None, None, None, None, None, None, None]]
+
+    it "does not remove any marks initially on the board" $
+      forAll genBoard (\b -> sameMarks b (completeRow b))
+
+  describe "avoidDuplication" $ do
+    it "completes a row if it is nearly identical to another row" $
+      avoidDuplication [[X, O, X, None, None, None, O, None],
+                        [X, X, O, X, None, None, None, None],
+                        [O, O, X, None, None, X, None, None],
+                        [O, X, O, None, None, O, X, X],
+                        [X, O, X, None, None, O, None, None],
+                        [X, X, O, X, O, X, O, O],
+                        [O, X, O, O, X, O, X, X],
+                        [O, O, X, X, O, X, None, None]]
+      `shouldBe`
+      [[X, O, X, None, None, None, O, None],
+        [X, X, O, X, None, None, None, None],
+        [O, O, X, None, None, X, None, None],
+        [O, X, O, X, O, O, X, X],
+        [X, O, X, None, None, O, None, None],
+        [X, X, O, X, O, X, O, O],
+        [O, X, O, O, X, O, X, X],
+        [O, O, X, X, O, X, None, None]]
+

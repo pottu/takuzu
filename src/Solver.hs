@@ -37,7 +37,7 @@ applyTechniques b =
    in if b' == b then b else applyTechniques b'
   where
     -- TODO: Add techniques here.
-    ts = [avoidingTriples1and2, avoidingTriples3, completeRow, advancedTechnique1]
+    ts = [avoidingTriples1and2, avoidingTriples3, completeRow, avoidDuplication, advancedTechnique1]
 
     applyTechniques' :: [Board -> Board] -> Board -> Board
     applyTechniques' [] b = b
@@ -113,6 +113,48 @@ avoidingTriples3 b = zipWith aux (countMarks b) b
       where
         hasTriples row = any (\g -> (head g == (opposite mark)) && length g > 2) $ group row
         fillWithOpposite = map (\m -> if isMark m then m else opposite mark)
+
+avoidDuplication :: Board -> Board
+avoidDuplication b =
+  let completed = filter isCompleted b
+  in if length completed == 0
+  then b
+  else zipWith aux (countMarks b) b
+  where
+    toPlace :: Int
+    toPlace = (length $ head b) `div` 2
+    
+    isCompleted :: [Mark] -> Bool
+    isCompleted row =
+      let (xs, os) = countXO row
+      in xs == toPlace && os == toPlace
+
+    aux :: (Int, Int, Int) -> [Mark] -> [Mark]
+    aux (x, o, _) row | x + 1 == toPlace && o + 1 == toPlace =
+      let completed = filter isCompleted b
+          similar = filter (almostIdentical row) completed
+       in if length similar == 1
+          then complete row (similar !! 0)
+          else row
+    aux _ row = row
+
+    countXO :: [Mark] -> (Int, Int)
+    countXO [] = (0, 0)
+    countXO (X:ms) = let (x, o) = countXO ms in (x+1, o)
+    countXO (O:ms) = let (x, o) = countXO ms in (x, o+1)
+    countXO (_:ms) = countXO ms
+
+    almostIdentical :: [Mark] -> [Mark] -> Bool
+    almostIdentical [] [] = True
+    almostIdentical (None:xs) (_:ys) = almostIdentical xs ys
+    almostIdentical (_:xs) (None:ys) = almostIdentical xs ys
+    almostIdentical (x:xs) (y:ys) = x == y && almostIdentical xs ys
+  
+    complete :: [Mark] -> [Mark] -> [Mark]
+    complete [] [] = []
+    complete (None:xs) (X:ys) = (O:complete xs ys)
+    complete (None:xs) (O:ys) = (X:complete xs ys)
+    complete (x:xs) (y:ys) | x == y = (y:complete xs ys)
 
 advancedTechnique1 :: Board -> Board
 advancedTechnique1 b = zipWith findRow (countMarks b) b
