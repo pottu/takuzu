@@ -28,6 +28,46 @@ spec = do
         let b' = solve b 
          in isJust b' ==> sameMarks b (fromJust b'))
 
+  describe "avoidTriples3" $ do
+    it "places the last of a specific mark on a row such the other marks don't form a triple" $
+      avoidTriples3 [[None, X, O, X, None, O, None, None],
+                      [None, None, None, O, None, X, O, X],
+                      [O, O, X, X, O, X, X, O],
+                      [X, None, None, None, X, O, O, X],
+                      [None, None, None, O, X, X, O, None],
+                      [None, X, None, None, O, X, X, O],
+                      [None, None, None, X, None, O, None, None],
+                      [None, None, None, None, None, O, None, None]]
+      `shouldBe`
+      [[None, X, O, X, None, O, None, None],
+        [None, None, None, O, None, X, O, X],
+        [O, O, X, X, O, X, X, O],
+        [X, None, None, None, X, O, O, X],
+        [None, None, None, O, X, X, O, None],
+        [O, X, None, None, O, X, X, O],
+        [None, None, None, X, None, O, None, None],
+        [None, None, None, None, None, O, None, None]]
+
+  describe "completeRow" $ do
+    it "completes a row if only a single mark is missing" $
+      completeRow [[None, None, O, None, None, None, O, None],
+                    [None, O, X, O, O, X, None, X],
+                    [None, None, None, X, None, O, X, O],
+                    [None, None, O, X, X, O, None, X],
+                    [None, X, None, O, None, X, None, None],
+                    [O, None, X, O, O, X, None, None],
+                    [X, None, None, X, X, None, X, None],
+                    [X, None, None, None, None, None, None, None]]
+      `shouldBe`
+      [[None, None, O, None, None, None, O, None],
+        [None, O, X, O, O, X, None, X],
+        [None, None, None, X, None, O, X, O],
+        [None, None, O, X, X, O, None, X],
+        [None, X, None, O, None, X, None, None],
+        [O, None, X, O, O, X, None, None],
+        [X, O, O, X, X, O, X, O],
+        [X, None, None, None, None, None, None, None]]
+
   describe "avoidingTriples1and2" $ do
     it "mimics given example 1" $ do
       let example = [[None,None,None,X,X,None,None,None],
