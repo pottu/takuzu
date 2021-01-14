@@ -11,6 +11,12 @@ isMark :: Mark -> Bool
 isMark None = False
 isMark _    = True
 
+opposite :: Mark -> Mark
+opposite X = O
+opposite O = X
+opposite None = None
+
+
 type Board = [[Mark]]
 
 -- Get board size (rows, columns).

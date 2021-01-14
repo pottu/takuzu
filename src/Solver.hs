@@ -3,7 +3,7 @@ module Solver where
 import Board
 import Checker
 import Data.Maybe
-import Data.List (transpose)
+import Data.List (transpose, group, elemIndices)
 
 
 solve :: Board -> Maybe Board
@@ -39,7 +39,7 @@ applyTechniques b =
    in if b' == b then b else applyTechniques b'
   where
     -- TODO: Add techniques here.
-    ts = [avoidTriples1and2, avoidTriples3]
+    ts = [avoidingTriples1and2, advancedTechnique1]
 
     applyTechniques' :: [Board -> Board] -> Board -> Board
     applyTechniques' [] b = b
@@ -48,8 +48,8 @@ applyTechniques b =
 
 
 ---- Techniques --------------------------------------------
-avoidTriples1and2 :: Board -> Board
-avoidTriples1and2 = map patterns
+avoidingTriples1and2 :: Board -> Board
+avoidingTriples1and2 = map patterns
   where
     patterns :: [Mark] -> [Mark]
     -- Avoiding Triples 1
@@ -98,3 +98,54 @@ avoidTriples3 = map f
         placeInFirstSingleEmpty m (n:None:ms) = (n:m:ms)
         placeInFirstSingleEmpty m (None:n:ms) = (m:n:ms)
         placeInFirstSingleEmpty m (n:ms) = (n:(placeInFirstSingleEmpty m ms))
+
+
+
+
+
+advancedTechnique1 :: Board -> Board
+advancedTechnique1 b = zipWith findRow (countMarks b) b
+  where
+    toPlace :: Int
+    toPlace = (length $ head b) `div` 2
+    
+    findRow :: (Int, Int, Int) -> [Mark] -> [Mark]
+    findRow (x, o, none) row | o == toPlace - 2 =
+      let indices = elemIndices None row
+       in tryPlace indices none O row
+    findRow (x, o, none) row | x == toPlace - 2 =
+      let indices = elemIndices None row
+       in tryPlace indices none X row
+    findRow _ row = row
+
+    tryPlace :: [Int] -> Int -> Mark -> [Mark] -> [Mark]
+    tryPlace [] _ _ row = row
+    tryPlace (i:is) n mark row =
+      let penultimate = replace i mark row
+       in if placingLastResultsInTriples mark (n-1) penultimate
+             then replace i (opposite mark) row
+             else tryPlace is n mark row
+
+    placingLastResultsInTriples :: Mark -> Int -> [Mark] -> Bool
+    placingLastResultsInTriples mark nones row =
+      and $ map (hasTriples . fillWithOpposite) placedLast
+      where
+        placedLast = [place mark n row | n <- [1..nones]]
+        fillWithOpposite = map (\m -> if isMark m then m else opposite mark)
+        hasTriples row = any (\g -> (head g == (opposite mark)) && length g > 2) $ group row
+
+        place mark 1 (None:ms) = (mark:ms)
+        place mark n (None:ms) = (None: place mark (n-1) ms)
+        place mark n (m:ms)    = (m : place mark n ms)
+     
+---- Helper functions --------------------------------------
+-- TODO: Place in lib file?
+
+-- Replace element at index i with m in list.
+replace :: Int -> a -> [a] -> [a]
+replace n m l = let (l1, e:es) = splitAt n l in l1 ++ (m:es)
+
+-- Count occurences of m in list.
+count :: (Eq a) => a -> [a] -> Int
+count m [] = 0
+count m (m':ms) = if m == m' then 1 + count m ms else count m ms
