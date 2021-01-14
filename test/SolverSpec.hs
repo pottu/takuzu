@@ -126,3 +126,5 @@ spec = do
         [O, X, O, O, X, O, X, X],
         [O, O, X, X, O, X, None, None]]
 
+    it "does not remove any marks initially on the board" $
+      forAll genBoard (\b -> sameMarks b (completeRow b))
