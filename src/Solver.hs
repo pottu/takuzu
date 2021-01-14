@@ -113,6 +113,63 @@ avoidingTriples3 b = zipWith aux (countMarks b) b
         hasTriples row = any (\g -> (head g == (opposite mark)) && length g > 2) $ group row
         fillWithOpposite = map (\m -> if isMark m then m else opposite mark)
 
+avoidDuplication :: Board -> Board
+avoidDuplication b =
+  let completed = filter isCompleted b
+  in if length completed == 0
+  then b
+  else undefined
+  where
+    isCompleted :: [Mark] -> Bool
+    isCompleted row =
+      let (xs, os) = countMarks row
+          n = (length row) `div` 2
+      in xs == n && os == n
+
+    countMarks :: [Mark] -> (Int, Int)
+    countMarks [] = (0, 0)
+    countMarks (X:ms) = let (x, o) = countMarks ms in (x+1, o)
+    countMarks (O:ms) = let (x, o) = countMarks ms in (x, o+1)
+    countMarks (_:ms) = countMarks ms
+
+    almostIdentical :: [Mark] -> [Mark] -> Bool
+    almostIdentical [] [] = True
+    almostIdentical (None:xs) (_:ys) = almostIdentical xs ys
+    almostIdentical (_:xs) (None:ys) = almostIdentical xs ys
+    almostIdentical (x:xs) (y:ys) = x == y && almostIdentical xs ys
+  
+  -- let n = length b
+  --     rs = [(b !! x, b !! y) | x <- [0..(n-1)], y <- [0..(n-1)], x < y]
+  -- in
+  --   uniq $ map avoidDuplication' rs
+  --   where
+  --     avoidDuplication' :: ([Mark], [Mark]) -> [Mark]
+  --     avoidDuplication' (x, y) =
+  --       let (axs, ays) = countMarks x
+  --           (bxs, bys) = countMarks y
+  --           n = (length x) `div` 2
+  --       in if (axs + ays == n - 2) && (bxs + bys == n) && (almostIdentical x y) && (x /= y)
+  --          then complete x y
+  --          else x
+  --       where
+  --         countMarks :: [Mark] -> (Int, Int)
+  --         countMarks [] = (0, 0)
+  --         countMarks (X:ms) = let (x, o) = countMarks ms in (x+1, o)
+  --         countMarks (O:ms) = let (x, o) = countMarks ms in (x, o+1)
+  --         countMarks (_:ms) = countMarks ms
+
+  --         almostIdentical :: [Mark] -> [Mark] -> Bool
+  --         almostIdentical [] [] = True
+  --         almostIdentical (None:xs) (_:ys) = almostIdentical xs ys
+  --         almostIdentical (_:xs) (None:ys) = almostIdentical xs ys
+  --         almostIdentical (x:xs) (y:ys) = x == y && almostIdentical xs ys
+
+  --         complete :: [Mark] -> [Mark] -> [Mark]
+  --         complete [] [] = []
+  --         complete (None:xs) (X:ys) = (O:complete xs ys)
+  --         complete (None:xs) (O:ys) = (X:complete xs ys)
+  --         complete (_:xs) (y:ys) = (y:complete xs ys)        
+
 advancedTechnique1 :: Board -> Board
 advancedTechnique1 b = zipWith findRow (countMarks b) b
   where
@@ -163,4 +220,3 @@ count m (m':ms) = if m == m' then 1 + count m ms else count m ms
 -- Chunkify list. 
 chunksOf n [] = []
 chunksOf n l = ((take n l):(chunksOf n $ drop n l))
-
