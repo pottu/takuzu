@@ -128,3 +128,10 @@ spec = do
 
     it "does not remove any marks initially on the board" $
       forAll genBoard (\b -> sameMarks b (completeRow b))
+  describe "advancedtechnique2" $ do
+    it "mimics given example" $
+      advancedTechnique2 [[O, X, X, O, O, X, X, O, O, X], [O, X, X, O, O, X, None, O, None, None]]
+      `shouldBe` [[O, X, X, O, O, X, X, O, O, X], [O, X, X, O, O, X, None, O, X, None]]
+
+    it "does not remove any marks initially on the board" $
+      forAll genBoard (\b -> sameMarks b (completeRow b))

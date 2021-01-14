@@ -190,3 +190,55 @@ advancedTechnique1 b = zipWith findRow (countMarks b) b
         place mark 1 (None:ms) = (mark:ms)
         place mark n (None:ms) = (None: place mark (n-1) ms)
         place mark n (m:ms)    = (m : place mark n ms)
+     
+advancedTechnique2 :: Board -> Board
+advancedTechnique2 b =
+  let completed = filter isCompleted b
+  in if length completed == 0
+  then b
+  else zipWith aux (countMarks b) b
+  where
+    toPlace :: Int
+    toPlace = (length $ head b) `div` 2
+    
+    isCompleted :: [Mark] -> Bool
+    isCompleted row =
+      let (xs, os) = countXO row
+      in xs == toPlace && os == toPlace
+
+    aux :: (Int, Int, Int) -> [Mark] -> [Mark]
+    aux (x, o, none) row | x + 1 == toPlace && o + 2 == toPlace =
+      let indices = elemIndices None row
+          completed = filter isCompleted b
+          similar = filter (almostIdentical row) completed
+       in if length similar == 1
+          then tryPlace indices none X row (similar !! 0)
+          else row
+    aux (x, o, none) row | x + 2 == toPlace && o + 1 == toPlace =
+      let indices = elemIndices None row
+          completed = filter isCompleted b
+          similar = filter (almostIdentical row) completed
+       in if length similar == 1
+          then tryPlace indices none O row (similar !! 0)
+          else row
+    aux _ row = row
+
+    countXO :: [Mark] -> (Int, Int)
+    countXO [] = (0, 0)
+    countXO (X:ms) = let (x, o) = countXO ms in (x+1, o)
+    countXO (O:ms) = let (x, o) = countXO ms in (x, o+1)
+    countXO (_:ms) = countXO ms
+
+    almostIdentical :: [Mark] -> [Mark] -> Bool
+    almostIdentical [] [] = True
+    almostIdentical (None:xs) (_:ys) = almostIdentical xs ys
+    almostIdentical (_:xs) (None:ys) = almostIdentical xs ys
+    almostIdentical (x:xs) (y:ys) = x == y && almostIdentical xs ys
+
+    tryPlace :: [Int] -> Int -> Mark -> [Mark] -> [Mark] -> [Mark]
+    tryPlace [] _ _ row _ = row
+    tryPlace (i:is) n mark row similar =
+      let lastPlaced = replace i mark row
+       in if almostIdentical lastPlaced similar
+             then replace i (opposite mark) row
+             else tryPlace is n mark row similar
