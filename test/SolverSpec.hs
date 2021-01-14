@@ -28,6 +28,11 @@ spec = do
         let b' = solve b 
          in isJust b' ==> sameMarks b (fromJust b'))
 
+    it "manages to solve solvable boards" $
+      forAll genSolvableBoard (\b ->
+        let b' = solve b
+         in check (fromJust b') `shouldBe` Correct)
+
   describe "avoidTriples3" $ do
     it "places the last of a specific mark on a row such the other marks don't form a triple" $
       avoidingTriples3 [[None, X, O, X, None, O, None, None],
