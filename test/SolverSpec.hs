@@ -47,6 +47,8 @@ spec = do
         [O, X, None, None, O, X, X, O],
         [None, None, None, X, None, O, None, None],
         [None, None, None, None, None, O, None, None]]
+    it "does not remove any marks initially on the board" $
+      forAll genBoard (\b -> sameMarks b (avoidTriples3 b))
 
   describe "completeRow" $ do
     it "completes a row if only a single mark is missing" $
@@ -67,6 +69,8 @@ spec = do
         [O, None, X, O, O, X, None, None],
         [X, O, O, X, X, O, X, O],
         [X, None, None, None, None, None, None, None]]
+    it "does not remove any marks initially on the board" $
+      forAll genBoard (\b -> sameMarks b (completeRow b))
 
   describe "avoidingTriples1and2" $ do
     it "mimics given example 1" $ do
