@@ -11,6 +11,9 @@ isMark :: Mark -> Bool
 isMark None = False
 isMark _    = True
 
+isNone :: Mark -> Bool
+isNone = not . isMark
+
 opposite :: Mark -> Mark
 opposite X = O
 opposite O = X
