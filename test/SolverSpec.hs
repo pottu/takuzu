@@ -30,7 +30,7 @@ spec = do
 
   describe "avoidTriples3" $ do
     it "places the last of a specific mark on a row such the other marks don't form a triple" $
-      avoidTriples3 [[None, X, O, X, None, O, None, None],
+      avoidingTriples3 [[None, X, O, X, None, O, None, None],
                       [None, None, None, O, None, X, O, X],
                       [O, O, X, X, O, X, X, O],
                       [X, None, None, None, X, O, O, X],
@@ -48,7 +48,7 @@ spec = do
         [None, None, None, X, None, O, None, None],
         [None, None, None, None, None, O, None, None]]
     it "does not remove any marks initially on the board" $
-      forAll genBoard (\b -> sameMarks b (avoidTriples3 b))
+      forAll genBoard (\b -> sameMarks b (avoidingTriples3 b))
 
   describe "completeRow" $ do
     it "completes a row if only a single mark is missing" $
