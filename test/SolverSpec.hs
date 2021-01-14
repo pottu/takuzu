@@ -120,7 +120,7 @@ spec = do
       [[X, O, X, None, None, None, O, None],
         [X, X, O, X, None, None, None, None],
         [O, O, X, None, None, X, None, None],
-        [O, X, O, None, None, O, X, X],
+        [O, X, O, X, O, O, X, X],
         [X, O, X, None, None, O, None, None],
         [X, X, O, X, O, X, O, O],
         [O, X, O, O, X, O, X, X],
