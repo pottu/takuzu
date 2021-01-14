@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2c1582d77dc68c438010a99c5401f2dc8a69f234beefc991f052813c4e75c63b
+-- hash: 38d9103ba8884583d83fcdbb1b88b1cf46dbea7fac2516174f89fd10e871390d
 
 name:           takuzu
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       Board
       Checker
+      Lib
       Parser
       Solver
   other-modules:

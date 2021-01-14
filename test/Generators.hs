@@ -3,6 +3,7 @@ module Generators where
 import Test.QuickCheck
 import Test.QuickCheck.Gen
 import Board
+import Lib (chunksOf)    
 
 -- Generate arbitrary mark.
 -- Gives higher frequency to None.
@@ -22,7 +23,6 @@ genBoard = do
 
 -- Generates a small arbitrary board (2x2 to 10x10).
 -- "Small" as in can be solved rather quickly.
--- FIXME: Increase size when more techniques are added..
 genSmallBoard :: Gen Board
 genSmallBoard = do
   nrRows <- elements [2,4..10]
@@ -54,6 +54,3 @@ genSolvableBoard = do
   return $ chunksOf 22 board
   where
     b' = concat filledBoard
-    
-chunksOf n [] = []
-chunksOf n l = ((take n l):(chunksOf n $ drop n l))
