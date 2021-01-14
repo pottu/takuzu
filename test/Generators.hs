@@ -30,3 +30,30 @@ genSmallBoard = do
   b <- vectorOf nrRows $ vectorOf nrCols arbitrary
   return b
 
+filledBoard = [[O,O,X,O,O,X,X,O,O,X,O,X,O,X,O,X,O,X,X,O,X,X],
+               [X,X,O,X,X,O,X,O,X,X,O,O,X,O,X,O,O,X,O,X,O,O],
+               [O,X,X,O,X,O,O,X,O,O,X,O,X,O,O,X,X,O,X,X,O,X],
+               [O,O,X,X,O,X,X,O,X,O,O,X,O,X,X,O,X,X,O,O,X,O],
+               [X,O,O,X,O,O,X,X,O,X,O,X,O,O,X,X,O,O,X,O,X,X],
+               [O,X,X,O,X,X,O,O,X,O,X,O,X,O,O,X,O,O,X,X,O,X],
+               [X,X,O,O,X,X,O,O,X,X,O,O,X,X,O,O,X,X,O,O,X,O],
+               [X,O,O,X,O,O,X,X,O,O,X,X,O,O,X,O,X,X,O,O,X,X],
+               [O,O,X,O,O,X,X,O,O,X,O,X,X,O,X,X,O,O,X,X,O,X],
+               [X,X,O,X,X,O,O,X,X,O,X,O,X,X,O,O,X,O,O,X,O,O],
+               [X,X,O,O,X,X,O,O,X,X,O,X,O,O,X,O,O,X,O,O,X,X],
+               [O,O,X,X,O,O,X,X,O,O,X,O,X,X,O,X,X,O,X,O,X,O],
+               [X,X,O,O,X,O,O,X,X,O,X,X,O,X,O,X,X,O,O,X,O,O],
+               [O,X,X,O,O,X,O,O,X,X,O,O,X,O,X,O,O,X,X,O,X,X],
+               [X,O,O,X,X,O,X,X,O,X,X,O,O,X,X,O,O,X,O,X,O,O],
+               [O,O,X,X,O,X,O,X,O,O,X,X,O,X,O,X,X,O,X,X,O,O]]
+
+genSolvableBoard :: Gen Board
+genSolvableBoard = do
+  marks <- vectorOf (16*22) arbitrary
+  let board = zipWith (\m1 m2 -> if isNone m1 then None else m2) marks b'
+  return $ chunksOf 22 board
+  where
+    b' = concat filledBoard
+    
+chunksOf n [] = []
+chunksOf n l = ((take n l):(chunksOf n $ drop n l))
