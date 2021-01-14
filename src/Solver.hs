@@ -131,5 +131,5 @@ completeRow = map complete
 
         completeRow' :: Mark -> [Mark] -> [Mark]
         completeRow' _ [] = []
-        completeRow' m (None:ms) = (m:ms)
+        completeRow' m (None:ms) = (m:completeRow' m ms)
         completeRow' m (n:ms) = (n:(completeRow' m ms))

@@ -53,7 +53,7 @@ spec = do
                     [None, None, O, X, X, O, None, X],
                     [None, X, None, O, None, X, None, None],
                     [O, None, X, O, O, X, None, None],
-                    [X, None, O, X, X, O, X, O],
+                    [X, None, None, X, X, None, X, None],
                     [X, None, None, None, None, None, None, None]]
       `shouldBe`
       [[None, None, O, None, None, None, O, None],
