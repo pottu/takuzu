@@ -37,7 +37,7 @@ applyTechniques b =
    in if b' == b then b else applyTechniques b'
   where
     -- TODO: Add techniques here.
-    ts = [avoidingTriples1and2, avoidingTriples3, completeRow, avoidDuplication, advancedTechnique1]
+    ts = [avoidingTriples1and2, avoidingTriples3, completeRow, avoidDuplication, advancedTechnique1, advancedTechnique2]
 
     applyTechniques' :: [Board -> Board] -> Board -> Board
     applyTechniques' [] b = b
@@ -116,33 +116,33 @@ avoidingTriples3 b = zipWith aux (countMarks b) b
 
 avoidDuplication :: Board -> Board
 avoidDuplication b =
-  let completed = filter isCompleted b
-  in if length completed == 0
-  then b
-  else zipWith aux (countMarks b) b
+   case completed of
+     [] -> b
+     _  -> map (uncurry aux) countedRows
   where
+    countedRows :: [((Int,Int,Int), [Mark])]
+    countedRows = zip (countMarks b) b
+
+    completed :: [[Mark]]
+    completed = [row | ((_,_,0), row) <- countedRows]
+
     toPlace :: Int
     toPlace = (length $ head b) `div` 2
-    
-    isCompleted :: [Mark] -> Bool
-    isCompleted row =
-      let (xs, os) = countXO row
-      in xs == toPlace && os == toPlace
 
     aux :: (Int, Int, Int) -> [Mark] -> [Mark]
     aux (x, o, _) row | x + 1 == toPlace && o + 1 == toPlace =
-      let completed = filter isCompleted b
-          similar = filter (almostIdentical row) completed
-       in if length similar == 1
-          then complete row (similar !! 0)
-          else row
+      let similar = findSimilarRow completed row
+       in case similar of
+            Nothing -> row
+            (Just sim) -> complete row sim
     aux _ row = row
 
-    countXO :: [Mark] -> (Int, Int)
-    countXO [] = (0, 0)
-    countXO (X:ms) = let (x, o) = countXO ms in (x+1, o)
-    countXO (O:ms) = let (x, o) = countXO ms in (x, o+1)
-    countXO (_:ms) = countXO ms
+    findSimilarRow :: [[Mark]] -> [Mark] -> Maybe [Mark]
+    findSimilarRow [] _ = Nothing
+    findSimilarRow (r:rs) row =
+      if almostIdentical r row
+         then Just r
+         else findSimilarRow rs row
 
     almostIdentical :: [Mark] -> [Mark] -> Bool
     almostIdentical [] [] = True
@@ -193,41 +193,34 @@ advancedTechnique1 b = zipWith findRow (countMarks b) b
      
 advancedTechnique2 :: Board -> Board
 advancedTechnique2 b =
-  let completed = filter isCompleted b
-  in if length completed == 0
-  then b
-  else zipWith aux (countMarks b) b
+   case completed of
+     [] -> b
+     _  -> map (uncurry aux) countedRows
   where
+    countedRows :: [((Int,Int,Int), [Mark])]
+    countedRows = zip (countMarks b) b
+
+    completed :: [[Mark]]
+    completed = [row | ((_,_,0), row) <- countedRows]
+
     toPlace :: Int
     toPlace = (length $ head b) `div` 2
-    
-    isCompleted :: [Mark] -> Bool
-    isCompleted row =
-      let (xs, os) = countXO row
-      in xs == toPlace && os == toPlace
 
     aux :: (Int, Int, Int) -> [Mark] -> [Mark]
-    aux (x, o, none) row | x + 1 == toPlace && o + 2 == toPlace =
+    aux (x, o, none) row | x + 1 == toPlace =
       let indices = elemIndices None row
-          completed = filter isCompleted b
-          similar = filter (almostIdentical row) completed
-       in if length similar == 1
-          then tryPlace indices none X row (similar !! 0)
-          else row
-    aux (x, o, none) row | x + 2 == toPlace && o + 1 == toPlace =
+       in tryPlace indices none X row
+    aux (x, o, none) row | o + 1 == toPlace =
       let indices = elemIndices None row
-          completed = filter isCompleted b
-          similar = filter (almostIdentical row) completed
-       in if length similar == 1
-          then tryPlace indices none O row (similar !! 0)
-          else row
+       in tryPlace indices none O row
     aux _ row = row
 
-    countXO :: [Mark] -> (Int, Int)
-    countXO [] = (0, 0)
-    countXO (X:ms) = let (x, o) = countXO ms in (x+1, o)
-    countXO (O:ms) = let (x, o) = countXO ms in (x, o+1)
-    countXO (_:ms) = countXO ms
+    findSimilarRow :: [[Mark]] -> [Mark] -> Maybe [Mark]
+    findSimilarRow [] _ = Nothing
+    findSimilarRow (r:rs) row =
+      if almostIdentical r row
+         then Just r
+         else findSimilarRow rs row
 
     almostIdentical :: [Mark] -> [Mark] -> Bool
     almostIdentical [] [] = True
@@ -235,10 +228,13 @@ advancedTechnique2 b =
     almostIdentical (_:xs) (None:ys) = almostIdentical xs ys
     almostIdentical (x:xs) (y:ys) = x == y && almostIdentical xs ys
 
-    tryPlace :: [Int] -> Int -> Mark -> [Mark] -> [Mark] -> [Mark]
-    tryPlace [] _ _ row _ = row
-    tryPlace (i:is) n mark row similar =
+    tryPlace :: [Int] -> Int -> Mark -> [Mark] -> [Mark]
+    tryPlace [] _ _ row = row
+    tryPlace (i:is) n mark row =
       let lastPlaced = replace i mark row
-       in if almostIdentical lastPlaced similar
-             then replace i (opposite mark) row
-             else tryPlace is n mark row similar
+          similar = findSimilarRow completed lastPlaced
+       in case similar of
+            Nothing -> tryPlace is n mark row
+            (Just sim) -> replace i (opposite mark) row
+      where
+        fillWithOpposite = map (\m -> if isMark m then m else opposite mark)
