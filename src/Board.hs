@@ -28,25 +28,10 @@ boardSize b@(r:_) = (length b, length r)
 
 -- Pretty printer for board.
 prettyBoard :: Board -> String
-prettyBoard b = concatMap ((++"\n") . (concatMap show)) b
+prettyBoard = concatMap ((++"\n") . (concatMap show))
 
 
--- NOTE: Currently unused.
-data BoardStatus = BoardStatus 
-                   { transposed :: Bool
-                   , nrOfRows :: Int
-                   , nrOfCols :: Int
-                   , nrOfMarks :: [(Int, Int, Int)]
-                   }
-
-boardStatus :: Board -> Bool -> Int -> Int -> BoardStatus
-boardStatus b t r c = BoardStatus
-  { transposed = t
-  , nrOfRows = r
-  , nrOfCols = c
-  , nrOfMarks = countMarks b
-  }
-
+-- Count marks for each row.
 countMarks :: Board -> [(Int, Int, Int)]
 countMarks = map (countMarks' (0, 0, 0))
   where

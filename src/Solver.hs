@@ -19,7 +19,6 @@ solve b =
            in if isNothing guessX then guessO else guessX
 
 -- Make a guess on first unmarked spot.
--- NOTE: Quick implementation. There probably is a better approach..
 guess :: Mark -> Board -> Board
 guess m b = 
   let len = length $ head b
@@ -36,13 +35,10 @@ applyTechniques b =
   let b' = applyTechniques' ts $ transpose $ applyTechniques' ts $ transpose b
    in if b' == b then b else applyTechniques b'
   where
-    -- TODO: Add techniques here.
     ts = [avoidingTriples1and2, avoidingTriples3, completeRow, avoidDuplication, advancedTechnique1, advancedTechnique2]
 
     applyTechniques' :: [Board -> Board] -> Board -> Board
-    applyTechniques' [] b = b
-    applyTechniques' (t:ts) b = applyTechniques' ts $ t b
-
+    applyTechniques' ts b = foldl (\ b t -> t b) b ts
 
 
 ---- Techniques --------------------------------------------
@@ -87,7 +83,6 @@ completeRow = map complete
         completeRow' m (None:ms) = (m:completeRow' m ms)
         completeRow' m (n:ms) = (n:(completeRow' m ms))
 
--- TODO: A lot of code shared between AdvTe1 and AvoTrip 3, refactor!
 avoidingTriples3 :: Board -> Board
 avoidingTriples3 b = zipWith aux (countMarks b) b
   where
